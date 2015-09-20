@@ -1,7 +1,7 @@
-print("Entering Math library!")
+--print("Entering Math library!")
 math.randomseed(os.time())
 math.random();math.random();math.random()
-print("Defining Rects...")
+--print("Defining Rects...")
 Rect = {}
 
 function Rect:new(x, y, w, h)
@@ -67,7 +67,7 @@ function love.graphics.rectangle(mode, x, y, width, height)
 	_oldrectangle(mode, x, y, width, height)
 end
 
-print("Defining Vectors...")
+--print("Defining Vectors...")
 Vector2 = {}
 
 Vector2.__index = Vector2
@@ -93,6 +93,10 @@ end
 
 function Vector2:len()
 	return math.sqrt((self.x*self.x)+(self.y*self.y))
+end
+
+function Vector2:angle()
+	return math.atan2(self.y, self.x)
 end
 
 function Vector2:norm()

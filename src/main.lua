@@ -8,15 +8,18 @@ req = require("project")
 	libraries = req.libs
 
 	for _, v in ipairs(libraries) do
-		print("Importing library \""..v.."\"")
+		--print("Importing library \""..v.."\"")
 		libs[v]=require(v)
+		if v == "class" then
+			Class = libs["class"]
+		end
 	end
 
 	control = libs["control"]
 	--loveframes = libs["loveframes"]
 	--UI = require("ui.UI")
 	--Theme = require("theme")
-	Class = libs["class"]
+
 --LIBRARIES End
 
 --STATES Start
@@ -25,7 +28,6 @@ req = require("project")
 	STATE = ""
 
 	DEFAULT_STATE = ""
-	INITIAL_STATE = ""
 
 	states = {}
 
@@ -66,7 +68,7 @@ req = require("project")
 
 	for _, v in ipairs(modules) do
 		table.insert(stateOrder, v)
-		require(v)
+		states[v] = require(v)
 	end
 
 
@@ -105,8 +107,16 @@ end
 
 function DelTimer(t)
 	
-	timers[STATE]:remove(t)
+	timers[_state or STATE]:remove(t)
 	
+end
+
+function StartTimer(...)
+	return RegTimer(...)
+end
+
+function EndTimer(...)
+	return DelTimer(...)
 end
 
 function ClearTimers()
@@ -138,12 +148,16 @@ end
 
 function DelLerper(l)
 	
-	lerpers[STATE]:remove(l)
+	lerpers[_state or STATE]:remove(l)
 	
 end
 
+function EndLerp(...)
+	DelLerper(...)
+end
+
 function ClearLerpers()
-	lerpers[STATE] = List:new()
+	lerpers[STATE] = List()
 end
 
 
@@ -179,27 +193,26 @@ function love.load()
 end
 
 function love.update(dt)
-	
+	_state = STATE
 	--main updating
-	if(timers[STATE]) then
-		timers[STATE]:update(dt)
+	if(timers[_state]) then
+		timers[_state]:update(dt)
 	end
 	
-	if lerpers[STATE] then
-		lerpers[STATE]:update(dt)
+	if lerpers[_state] then
+		lerpers[_state]:update(dt)
 	end
 	
-	
-	
-	if states[STATE].update then
-		states[STATE]:update(dt)
+	if states[_state].update then
+		states[_state]:update(dt)
 	end
 	
-	if states[STATE].gui then
-		states[STATE].gui:mousehover(love.mouse.getX(), love.mouse.getY())
+	if states[_state].gui then
+		local x,y = love.mouse.getPosition()
+		states[_state].gui:mousehover(x,y)
 	end
 	
-	--loveframes.update(dt)
+
 	
 end
 
@@ -221,7 +234,7 @@ function love.keypressed(key, isRepeat)
 			return
 		end
 	end
-	
+	--[[
 	if key == "m" then
 		--mute 
 		if not MUSIC_MUTED then
@@ -233,11 +246,11 @@ function love.keypressed(key, isRepeat)
 		end
 		MUSIC_MUTED = not MUSIC_MUTED
 	end
-	
-	control.keypressed(key, isRepeat)
+	--]]
+	--control.keypressed(key, isRepeat)
 	
 	if states[STATE].keypressed then
-		print("Entering keypressed of "..STATE)
+		--print("Entering keypressed of "..STATE)
 		states[STATE]:keypressed(key)
 	end
 	
